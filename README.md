@@ -2,7 +2,7 @@
 
 A decentralized application (dApp) built on the Stellar blockchain designed to modernize and secure property registration. Users can utilize this platform to anonymously and securely register land/property with a specific area and location, and later search for and fetch those property details on-chain.
 
-![Land Registry dApp Demo](https://drive.google.com/uc?export=view&id=1iRnMZzfByjy9DhHI--L_EDjdaOKmfguf)
+![Land Registry dApp Demo](./TargetBuild.png)
 
 ---
 
