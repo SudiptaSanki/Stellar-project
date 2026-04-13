@@ -1,84 +1,55 @@
-## Project Name: Anonymous Feedback dApp
+## Land Registry dApp on Stellar
 
-A full-stack decentralized application (dApp) built on the Stellar blockchain. Users can utilize this dApp to register anonymous feedback. The smart contract includes logic to automatically assign unique IDs to each newly created feedback, and these registered feedback entries can be accessed using their respective feedback IDs.
----
-## Table of content:
-- Technologies Used
-- Smart-contract Info
-- ⚠️ Issue
-- Project Setup Guide
+A decentralized application (dApp) built on the Stellar blockchain designed to modernize and secure property registration. Users can utilize this platform to anonymously and securely register land/property with a specific area and location, and later search for and fetch those property details on-chain.
+
+![Land Registry dApp Demo](https://drive.google.com/file/d/1iRnMZzfByjy9DhHI--L_EDjdaOKmfguf/view?usp=drive_link)
 
 ---
+
+## Features
+- **Register Property**: Input a location and area size (sq meters) and submit a secure transaction on the Stellar testnet to capture and lock property data to your Freighter wallet address.
+- **Fetch Property**: Query the blockchain by an ID to retrieve verified information about the land, its location, area size, and its recorded owner.
+- **Dark Mode Support**: Comes tightly integrated with a modern Tailwind day/night styling interface.
+- **Sleek UX**: Provides a lively and interactive user interface to guide users globally.
+
+---
+
 ## Technologies Used:
-- Smartcontract : Rust, Soroban-SDK
-- Wallet : Freighter (available as a chrome-extension)
-- Frontend : ReactJS, TailwindCSS
-- Integeration : Stellar-SDK
----
-
-## Smart-contract Info:
-
-- All the materials related to the smart contract can be found in the ```anonymous-feedback-smartcontract``` folder:
-
-- The path to the smart contract is:  ```./anonymous-feedback-smartcontract/contracts/hello_world/src/lib.rs```
-
-
-### Deployed smartcontract address: ```CBHLCEAS7RULUOMVBH2C7C5PMXMBWJSNYBE3S5W2U5GWIGXICJ4RMVHG``` 
-[View in contract-explorer](https://lab.stellar.org/r/testnet/contract/CBHLCEAS7RULUOMVBH2C7C5PMXMBWJSNYBE3S5W2U5GWIGXICJ4RMVHG)
-
-### Functions written inside the Anonymous Feedback Smartcontract: 
-
-1. ```send_feedback(env: Env, feedback_msg: String) -> u64``` : Takes a feedback message (of type ```String```) as an argument, assigns a unique ID to each feedback, stores the feedback on the blockchain, and returns the feedback ID for the newly created entry. 
-
-2. ```fetch_feedback(env: Env, fb_id: u64) -> Feedback``` : Takes a feedback ID (of type ```u64```) as an argument and returns the feedback associated with the specified ID.
-
----
-
-## ⚠️ Issue:
-
-### Title: 
-Getting ```undefined``` When Fetching Data from the Blockchain Using Stellar-SDK
-
-### Note:
-Both setter (```send_feedback()```) and getter (```fetch_feedback()```) functions work as expected when invoked from the terminal using Stellar-CLI.
-
-### Issue Description: 
-The getter smart contract function (```fetch_feedback()```) returns undefined when invoked using the JavaScript interaction function (```fetchFeedback()```) built with Stellar-SDK (located in the Soroban.js file). This issue persists despite the function being correctly invoked.
-
-Additionally, while I am able to store data on the blockchain using the setter smart contract function (```send_feedback()```) through the ```sendFeedback()``` interaction function, this function also returns undefined instead of the expected object.
- 
-The transaction builder function and all interaction functions are implemented in the Soroban.js file.
-- Path to ```Soroban.js``` file: ```src/components/Soroban.js```
-
-### NOTE: 
-I have followed the Stellar documentation mentioned below to create the transaction builder function:
-https://developers.stellar.org/docs/build/guides/transactions/invoke-contract-tx-sdk
-
----
-
-## Screenshots of Issue (You can reproduce the issue by following the screenshots):
-1. Creating a Feedback and Storing it onchain by invoking the ```send_feedback()``` smartcontract function:
-   ![image](https://github.com/user-attachments/assets/83bfebed-4b14-4ff9-b38d-575c9e89f9e2)
-
-   Result:
-   - Expected output: ```4```
-   - Output got: ```Undefined```
-   ![image](https://github.com/user-attachments/assets/e0623442-1a5f-4773-8a53-adb7ecf90f9d)
-
-3. Fetching a feedback with feedback-id ```4``` by invoking the ```fetch_feedback()``` smartcontract function:
-   ![image](https://github.com/user-attachments/assets/1baba311-3c23-425e-977f-da052c90af54)
-
-   Result:
-   - Expected output: ```Feedback Number 4```
-   - Output got: ```Undefined```
-   ![image](https://github.com/user-attachments/assets/c33ae590-1a3a-44c2-9501-35b92b1f9dda)
-
+- **Smart Contract** : Rust, Soroban-SDK
+- **Wallet Auth** : Freighter (Available as a Chrome Extension)
+- **Frontend** : ReactJS, TailwindCSS
+- **Integration Layer** : Stellar-SDK
 
 ---
 
 ## Project Setup Guide:
-1. Install NodeJS, Rust, Stellar-CLI
-2. Install Freighter Wallet chrome extension.
-3. Clone the repository : ```git clone https://github.com/bhupendra-chouhan/Anonymous-Feedback-Soroban.git```
-4. Install Dependencies: ```npm install```
-5. Start the project: ```npm run start```
+
+### Requirements
+You will need to have the following installed on your machine:
+1. **Node.js** (v18+)
+2. **Rust**
+3. **Stellar-CLI**
+4. **Freighter Wallet** Extension (in your browser, initialized with the Testnet).
+
+### 1. Clone & Install
+Clone the repository to your local machine:
+```bash
+git clone https://github.com/SudiptaSanki/Stellar-project.git
+cd "Stellar-project"
+npm install
+```
+
+### 2. Smart Contract Initialization (Optional)
+If you wish to compile and deploy your own contract:
+1. Ensure `stellar-cli` is installed `cargo install --locked stellar-cli`.
+2. Navigate into the smart contract directory: `cd LandRegistrySmartContract/contracts/hello-world`
+3. Run the build command: `stellar contract build`
+4. Deploy to Testnet and take note of the output **Contract ID**.
+5. Go into `src/components/LandRegistryService.js` and paste your deployed Contract ID at line `18`.
+
+### 3. Run the Frontend Dashboard
+Navigate back to the main directory and run the frontend interface:
+```bash
+npm start
+```
+Go to `https://localhost:3000` to interact with your secure decentralized land registry!

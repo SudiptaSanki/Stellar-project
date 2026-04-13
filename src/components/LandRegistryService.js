@@ -11,33 +11,26 @@ import {
 import { userSignTransaction } from "./Freighter";
 
 /* ================= Config ================= */
-
 const RPC_URL = "https://soroban-testnet.stellar.org:443";
 const NETWORK = Networks.TESTNET;
-
-const CONTRACT_ADDRESS =
-  "CBK6DMOHM7I7G3IDNQS7JAJOCJ4XVO5SLXP6KHQAWNVTKW5YHETSE5UA";
+const CONTRACT_ADDRESS = "CBK6DMOHM7I7G3IDNQS7JAJOCJ4XVO5SLXP6KHQAWNVTKW5YHETSE5UA"; // Update once deployed!
 
 const server = new StellarRpc.Server(RPC_URL);
-
 const TX_PARAMS = {
   fee: BASE_FEE,
   networkPassphrase: NETWORK,
 };
 
 /* ================= Helpers ================= */
-
 const stringToScVal = (value) => nativeToScVal(value);
 const numberToU64 = (value) => nativeToScVal(value, { type: "u64" });
+const addressToScVal = (address) => nativeToScVal(address, { type: "address" });
 
 /* ================= Core Contract Interaction ================= */
-
 async function contractInt(caller, fnName, values) {
-  // 1 Load account
   const sourceAccount = await server.getAccount(caller);
   const contract = new Contract(CONTRACT_ADDRESS);
 
-  // 2 Build tx
   const builder = new TransactionBuilder(sourceAccount, TX_PARAMS);
 
   if (Array.isArray(values)) {
@@ -50,35 +43,24 @@ async function contractInt(caller, fnName, values) {
 
   const tx = builder.setTimeout(30).build();
 
-  // 3 Prepare transaction (legacy Soroban flow)
   const preparedTx = await server.prepareTransaction(tx);
-
-  // 4 Convert to XDR
   const xdr = preparedTx.toXDR();
-
-  // 5 Sign with Freighter
   const signed = await userSignTransaction(xdr, caller);
 
   const signedTx = TransactionBuilder.fromXDR(signed.signedTxXdr, NETWORK);
-
-  // 6 Send tx
   const send = await server.sendTransaction(signedTx);
 
-  // 7 Poll
   for (let i = 0; i < 10; i++) {
     const res = await server.getTransaction(send.hash);
-
     if (res.status === "SUCCESS") {
       if (res.returnValue) {
         return scValToNative(res.returnValue);
       }
       return null;
     }
-
     if (res.status === "FAILED") {
       throw new Error("Transaction failed");
     }
-
     await new Promise((r) => setTimeout(r, 1000));
   }
 
@@ -86,33 +68,40 @@ async function contractInt(caller, fnName, values) {
 }
 
 /* ================= Contract Functions ================= */
-
-async function sendFeedback(caller, feedbackText) {
+async function registerProperty(caller, location, area) {
   try {
-    const value = stringToScVal(feedbackText);
-    const result = await contractInt(caller, "send_feedback", value);
+    const callerAddressVal = addressToScVal(caller);
+    const locationVal = stringToScVal(location);
+    const areaVal = numberToU64(area);
 
-    console.log("Feedback ID:", Number(result));
+    const result = await contractInt(caller, "register_property", [
+      callerAddressVal,
+      locationVal,
+      areaVal,
+    ]);
+
+    console.log("Property ID:", Number(result));
     return Number(result);
   } catch (error) {
-    console.error("sendFeedback failed:", error);
+    console.error("registerProperty failed:", error);
     throw error;
   }
 }
 
-async function fetchFeedback(caller, feedbackId) {
+async function fetchProperty(caller, propId) {
   try {
-    const value = numberToU64(feedbackId);
-    const result = await contractInt(caller, "fetch_feedback", value);
-
-    console.log("Fetched feedback:", result.message.toString());
-    return result.message.toString();
+    const value = numberToU64(propId);
+    const result = await contractInt(caller, "fetch_property", value);
+    return {
+      prop_id: Number(result.prop_id),
+      owner: result.owner,
+      location: result.location.toString(),
+      area: Number(result.area),
+    };
   } catch (error) {
-    console.error("fetchFeedback failed:", error);
+    console.error("fetchProperty failed:", error);
     throw error;
   }
 }
 
-/* ================= Exports ================= */
-
-export { sendFeedback, fetchFeedback };
+export { registerProperty, fetchProperty };
